@@ -7,9 +7,80 @@ export interface GeoLocationData {
   [key: string]: any; // additional properties can be added if needed
 }
 
-export interface CountryInfo {
-  data: string; // Adjust based on the response structure you expect from the second API
+export interface CountryStatistics {
+  data: Data; // Adjust based on the response structure you expect from the second API
   [key: string]: any;
+}
+
+export interface Sentiment {
+  nsr: number;
+  values: Value[];
+  otherCount: number;
+}
+
+export interface DateValue {
+  date: string;
+  dateAsUtc: string;
+  key: string;
+  count: number;
+  metricValue: number;
+  sentiment: Sentiment;
+  authorsCount: number;
+}
+
+export interface Aggregations {
+  dates: {
+    values: DateValue[];
+    otherCount: number;
+  };
+  sentiment: Sentiment;
+  authorsCount: number;
+}
+
+export interface Data {
+  totalCount: number;
+  aggregations: Aggregations;
+  entities: Record<string, unknown>;
+}
+
+export interface Root {
+  actions: Word[]
+  characteristics: Word[]
+  objects: Word[]
+  phrases: Word[]
+  persons: Word[]
+  organizations: Word[]
+  locations: Word[]
+}
+
+export interface Word {
+  totalCount: number
+  totalUniqueTextsCount: number
+  similar_keywords: string[]
+  normalized_key: string
+  sentiment: Sentiment
+  languages: Language
+  uniqueTextsCount: number
+  key: string
+  count: number
+  metricValue: number
+}
+
+export interface Sentiment {
+  nsr: number
+  values: Value[]
+  otherCount: number
+}
+
+export interface Language {
+  values: Value[]
+  otherCount: number
+}
+
+export interface Value {
+  key: string
+  count: number
+  metricValue: number
 }
 
 export const getCountry = async (): Promise<string | null> => {
@@ -22,12 +93,22 @@ export const getCountry = async (): Promise<string | null> => {
   }
 };
 
-export const getCountryInfo = async (countryCode: string): Promise<CountryInfo | null> => {
+export const getCountryStatistics = async (countryCode: string): Promise<CountryStatistics | null> => {
   try {
-    const response = await axios.get<CountryInfo>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?country=${countryCode}`); // Replace with your actual API endpoint
+    const response = await axios.get<CountryStatistics>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?country=${countryCode}&method=statistics`); // Replace with your actual API endpoint
     return response.data;
   } catch (error) {
-    console.error('Error fetching country-specific info:', error);
+    console.error('Error fetching country statistics info:', error);
     return null;
   }
 };
+
+export const getCountryWordCloud = async(countryCode: string): Promise<CountryStatistics | null> => {
+  try {
+    const response = await axios.get<CountryStatistics>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?country=${countryCode}&method=wordcloud`); // Replace with your actual API endpoint
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching country wordcloud info:', error);
+    return null;
+  }
+}
