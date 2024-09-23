@@ -9,7 +9,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { getCountry, getCountryInfo, CountryInfo } from '../services/infoService';
+import { getCountry, getCountryInfo } from '../services/infoService';
+import type { CountryInfo } from '../services/infoService';
 
 export default defineComponent({
   setup() {

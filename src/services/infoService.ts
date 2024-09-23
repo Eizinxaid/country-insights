@@ -24,7 +24,7 @@ export const getCountry = async (): Promise<string | null> => {
 
 export const getCountryInfo = async (countryCode: string): Promise<CountryInfo | null> => {
   try {
-    const response = await axios.get<CountryInfo>(`https://example.com/api/info?country=${countryCode}`); // Replace with your actual API endpoint
+    const response = await axios.get<CountryInfo>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?country=${countryCode}`); // Replace with your actual API endpoint
     return response.data;
   } catch (error) {
     console.error('Error fetching country-specific info:', error);
