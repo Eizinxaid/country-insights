@@ -6,7 +6,7 @@
   
   <script lang="ts">
   import { defineComponent, ref, onMounted } from 'vue';
-  import { getCountry } from './services/geo-service';
+  import { getCountry } from '../services/geo-service';
   
   export default defineComponent({
     setup() {
