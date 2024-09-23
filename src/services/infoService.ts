@@ -4,11 +4,16 @@ export interface GeoLocationData {
   country: string;
   region: string;
   city: string;
-  [key: string]: any; // additional properties can be added if needed
+  [key: string]: any;
 }
 
 export interface CountryStatistics {
-  data: Data; // Adjust based on the response structure you expect from the second API
+  data: Data; 
+  [key: string]: any;
+}
+
+export interface CountryWordMap {
+  data: Root;
   [key: string]: any;
 }
 
@@ -103,9 +108,9 @@ export const getCountryStatistics = async (countryCode: string): Promise<Country
   }
 };
 
-export const getCountryWordCloud = async(countryCode: string): Promise<CountryStatistics | null> => {
+export const getCountryWordCloud = async(countryCode: string): Promise<CountryWordMap | null> => {
   try {
-    const response = await axios.get<CountryStatistics>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?country=${countryCode}&method=wordcloud`); // Replace with your actual API endpoint
+    const response = await axios.get<CountryWordMap>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?country=${countryCode}&method=wordcloud`); // Replace with your actual API endpoint
     return response.data;
   } catch (error) {
     console.error('Error fetching country wordcloud info:', error);
