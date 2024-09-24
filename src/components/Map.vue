@@ -1,6 +1,13 @@
 <template>
-  <div v-if="processedSvgContent" v-html="processedSvgContent" @click="handleClick"></div>
-  <div v-else>Loading map...</div>
+  <div class="map-container" ref="mapContainer">
+    <div v-if="processedSvgContent" v-html="processedSvgContent" @mousemove="handleMouseMove"></div>
+    <div v-else>Loading map...</div>
+    <div v-if="showPopup" class="country-popup" :style="popupStyle">
+      <div class="country-flag">{{ countryFlag }}</div>
+      <div class="country-name">{{ popupData.name }}</div>
+      <div class="country-count">{{ popupData.count }} articles today</div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -19,8 +26,18 @@ export default defineComponent({
       required: true
     }
   },
-  setup(props, { emit }) {
+  setup(props) {
     const svgContent = ref('');
+    const showPopup = ref(false);
+    const popupStyle = ref({
+      left: '0px',
+      top: '0px',
+    });
+    const popupData = ref({
+      name: '',
+      count: 0,
+    });
+    const countryFlag = ref('');
 
     onMounted(async () => {
       try {
@@ -74,7 +91,7 @@ export default defineComponent({
       return new XMLSerializer().serializeToString(doc);
     });
 
-    const handleClick = (event: MouseEvent) => {
+    const handleMouseMove = (event: MouseEvent) => {
       const target = event.target as SVGElement;
       if (target.tagName.toLowerCase() === 'path') {
         const countryKey = target.getAttribute('id');
@@ -82,22 +99,32 @@ export default defineComponent({
         const countryName = target.getAttribute('name') || target.getAttribute('id') || target.getAttribute('class');
 
         if (countryKey && countryCount) {
-          const count = parseInt(countryCount, 10);
-
-          alert(
-            `Clicked on ${countryName}` + `\n` +
-            `Country Key: ${countryKey}` + `\n` +
-            `Count: ${count}`
-          );
-
-          // Emit an event with the clicked country data
-          emit('country-click', {
-            key: countryKey,
-            name: countryName,
-            count: count
-          });
+          showPopup.value = true;
+          popupStyle.value = {
+            left: `${event.clientX + 10}px`,
+            top: `${event.clientY + 10}px`,
+          };
+          popupData.value = {
+            name: countryName || '',
+            count: parseInt(countryCount, 10),
+          };
+          countryFlag.value = getFlagEmoji(countryKey);
         }
+      } else {
+        //hidePopup();
       }
+    };
+
+    const hidePopup = () => {
+      showPopup.value = false;
+    };
+
+    const getFlagEmoji = (countryCode: string) => {
+      const codePoints = countryCode
+        .toUpperCase()
+        .split('')
+        .map(char => 127397 + char.charCodeAt(0));
+      return String.fromCodePoint(...codePoints);
     };
 
     watch(() => props.countryData, () => {
@@ -107,7 +134,12 @@ export default defineComponent({
 
     return {
       processedSvgContent,
-      handleClick
+      handleMouseMove,
+      hidePopup,
+      showPopup,
+      popupStyle,
+      popupData,
+      countryFlag,
     };
   }
 });
