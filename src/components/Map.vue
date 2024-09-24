@@ -52,49 +52,53 @@ export default defineComponent({
         .domain([Math.min(...counts), Math.max(...counts)]);
 
       // Color countries based on count
-      countryCountMap.forEach((count, countryKey) => {
-        const countryPath = doc.querySelector(`path[id="${countryKey}"], path[name="${countryKey}"], path.${countryKey}`);
-        if (countryPath) {
-          if (countryKey === props.currentCountry) {
-            countryPath.setAttribute('style', 'fill: gold; stroke: #000; stroke-width: 1;');
-          } else {
-            const color = colorScale(count as number);
-            countryPath.setAttribute('style', `fill: ${color}; stroke: #000; stroke-width: 0.5;`);
-          }
-          // Add data attributes for click handling
-          countryPath.setAttribute('data-country-key', countryKey);
-          countryPath.setAttribute('data-country-count', count.toString());
+      doc.querySelectorAll('path').forEach((countryPath) => {
+        const countryKey = countryPath.getAttribute('id') || '';
+        const count = countryCountMap.get(countryKey.toUpperCase());
+
+        if (props.currentCountry && countryKey.toUpperCase() === props.currentCountry.toUpperCase()) {
+          countryPath.setAttribute('style', 'fill: gold; stroke: #000; stroke-width: 2;');
+        } else if (count !== undefined) {
+          const color = colorScale(count);
+          countryPath.setAttribute('style', `fill: ${color}; stroke: #000; stroke-width: 0.5;`);
+        } else {
+          // For countries without data, use a light gray color
+          countryPath.setAttribute('style', 'fill: #f0f0f0; stroke: #000; stroke-width: 0.5;');
         }
+
+        // Add data attributes for click handling
+        countryPath.setAttribute('data-country-key', countryKey);
+        countryPath.setAttribute('data-country-count', count?.toString() || '0');
       });
 
       return new XMLSerializer().serializeToString(doc);
     });
 
     const handleClick = (event: MouseEvent) => {
-  const target = event.target as SVGElement;
-  if (target.tagName.toLowerCase() === 'path') {
-    const countryKey = target.getAttribute('id');
-    const countryCount = target.getAttribute('data-country-count');
-    const countryName = target.getAttribute('name') || target.getAttribute('id') || target.getAttribute('class');
+      const target = event.target as SVGElement;
+      if (target.tagName.toLowerCase() === 'path') {
+        const countryKey = target.getAttribute('id');
+        const countryCount = target.getAttribute('data-country-count');
+        const countryName = target.getAttribute('name') || target.getAttribute('id') || target.getAttribute('class');
 
-    if (countryKey && countryCount) {
-      const count = parseInt(countryCount, 10);
+        if (countryKey && countryCount) {
+          const count = parseInt(countryCount, 10);
 
-      alert(
-        `Clicked on ${countryName}` + `\n` +
-        `Country Key: ${countryKey}` + `\n` +
-        `Count: ${count}`
-      );
+          alert(
+            `Clicked on ${countryName}` + `\n` +
+            `Country Key: ${countryKey}` + `\n` +
+            `Count: ${count}`
+          );
 
-      // Emit an event with the clicked country data
-      emit('country-click', {
-        key: countryKey,
-        name: countryName,
-        count: count
-      });
-    }
-  }
-};
+          // Emit an event with the clicked country data
+          emit('country-click', {
+            key: countryKey,
+            name: countryName,
+            count: count
+          });
+        }
+      }
+    };
 
     watch(() => props.countryData, () => {
       // Force recomputation of processedSvgContent when countryData changes
@@ -116,6 +120,6 @@ export default defineComponent({
 }
 
 :deep(path:hover) {
-  stroke-width: 1.5;
+  stroke-width: 1.5 !important;
 }
 </style>

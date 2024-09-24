@@ -1,15 +1,14 @@
 <template>
   <div>
     <h1>Visitor's country {{ country }}</h1>
-    <Map v-if="generalStat" :currentCounry="country" :countryData="generalStat" />
+    <Map v-if="generalStat" :currentCountry="country || ''" :countryData="generalStat" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import Map from '../components/Map.vue';
-import { getCountry } from '../services/infoService';
-import { getGeneralStatistics } from '../services/infoService';
+import { getCountry, getGeneralStatistics } from '../services/infoService';
 import type { GeneralStatistics } from '../services/infoService';
 
 export default defineComponent({
@@ -18,11 +17,17 @@ export default defineComponent({
     Map
   },
   setup() {
-    const country = ref<string | undefined>(undefined);
+    const country = ref<string>('');
     const generalStat = ref<GeneralStatistics | undefined>(undefined);
+    
     const fetchCountryAndInfo = async () => {
-      country.value = await getCountry();
-      generalStat.value = await getGeneralStatistics();
+      try {
+        country.value = await getCountry() || '';
+        generalStat.value = await getGeneralStatistics();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle error (e.g., show error message to user)
+      }
     };
 
     onMounted(() => {
@@ -30,8 +35,6 @@ export default defineComponent({
     });
 
     return { country, generalStat }
-
   }
 });
-
 </script>
