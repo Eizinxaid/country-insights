@@ -39,7 +39,7 @@ export default defineComponent({
       // Highlight the selected country
       const countryPath = doc.querySelector(`path[id="${props.highlightedCountry}"], path[name="${props.highlightedCountry}"], path.${props.highlightedCountry}`);
       if (countryPath) {
-        countryPath.setAttribute('style', 'fill: gold; stroke: #000; stroke-width: 1;');
+        countryPath.setAttribute('style', 'stroke: #000; stroke-width: 2;');
       }
 
       return new XMLSerializer().serializeToString(doc);
