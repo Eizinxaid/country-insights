@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Visitor's country {{ country }}</h1>
-    <Map :highlighted-country="country"/>
+    <Map v-if="generalStat" :currentCounry="country" :countryData="generalStat" />
   </div>
 </template>
 
@@ -19,7 +19,7 @@ export default defineComponent({
   },
   setup() {
     const country = ref<string | undefined>(undefined);
-    const generalStat = ref<GeneralStatistics | null>(null);
+    const generalStat = ref<GeneralStatistics | undefined>(undefined);
     const fetchCountryAndInfo = async () => {
       country.value = await getCountry();
       generalStat.value = await getGeneralStatistics();
@@ -29,7 +29,7 @@ export default defineComponent({
       fetchCountryAndInfo();
     });
 
-    return { country }
+    return { country, generalStat }
 
   }
 });

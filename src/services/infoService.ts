@@ -142,13 +142,13 @@ export const getCountryWordCloud = async(countryCode: string): Promise<CountryWo
   }
 }
 
-export const getGeneralStatistics = async(): Promise<GeneralStatistics | null> => {
+export const getGeneralStatistics = async(): Promise<GeneralStatistics | undefined> => {
   try{
     const response = await axios.get<GeneralStatistics>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?method=globalstatistics`);
     return response.data;
   }
   catch (error) {
     console.error('Error fetching general statistics info:', error);
-    return null;
+    return undefined;
   }
 }
