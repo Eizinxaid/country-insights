@@ -6,13 +6,14 @@
     <div v-if="showPopup" class="country-popup" :style="popupStyle">
       <div class="country-flag">{{ countryFlag }}</div>
       <div class="country-name">{{ popupData.name }}</div>
-      <div class="country-count">{{ (popupData.count*100).toLocaleString('en-US') }} mentions this week</div>
+      <div class="country-count">{{ (popupData.count * 100).toLocaleString('en-US') }} mentions this week</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch, computed } from 'vue';
+import countries from '../../public/countries.json'
 import * as d3 from 'd3';
 
 export default defineComponent({
@@ -71,7 +72,10 @@ export default defineComponent({
         .domain([0, Math.max(...counts)]);
 
       doc.querySelectorAll('path').forEach((countryPath) => {
-        const countryKey = countryPath.getAttribute('id') || '';
+        let countryKey = countryPath.getAttribute('id') || '';
+        if (countryKey == '') {
+          countryKey = getCountryKeyByName(countryPath.getAttribute('class') || '');
+        }
         const count = countryCountMap.get(countryKey.toUpperCase()) || 0;
 
         const color = colorScale(count);
@@ -92,7 +96,10 @@ export default defineComponent({
     const handleMouseMove = (event: MouseEvent) => {
       const target = event.target as SVGElement;
       if (target.tagName.toLowerCase() === 'path') {
-        const countryKey = target.getAttribute('id');
+        let countryKey = target.getAttribute('id') || '';
+        if (countryKey == '') {
+          countryKey = getCountryKeyByName(target.getAttribute('class') || '');
+        }
         const countryCount = target.getAttribute('data-country-count');
         const countryName = target.getAttribute('name') || target.getAttribute('id') || target.getAttribute('class');
 
@@ -121,6 +128,13 @@ export default defineComponent({
           top: `${y}px`,
         };
       }
+    };
+
+    const getCountryKeyByName = (countryName: string): string => {
+      const country = (countries as { Name: string; Code: string }[]).find(
+        (country) => country.Name.toLowerCase() === countryName.toLowerCase()
+      );
+      return country ? country.Code : '';
     };
 
     const hidePopup = () => {
