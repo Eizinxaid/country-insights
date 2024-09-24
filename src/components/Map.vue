@@ -12,7 +12,7 @@ export default defineComponent({
 
     onMounted(async () => {
       try {
-        const response = await fetch('../public/world.svg');
+        const response = await fetch('/world.svg');
         svgContent.value = await response.text();
       } catch (error) {
         console.error('Error loading SVG:', error);
