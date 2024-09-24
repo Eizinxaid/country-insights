@@ -88,13 +88,13 @@ export interface Value {
   metricValue: number
 }
 
-export const getCountry = async (): Promise<string | null> => {
+export const getCountry = async (): Promise<string | undefined> => {
   try {
     const response = await axios.get<GeoLocationData>('https://ipinfo.io?token=bd3bc3bc9ce7eb'); // Replace with your API endpoint and token
     return response.data.country; // Returns the country code like 'US', 'CA', etc.
   } catch (error) {
     console.error('Error fetching geolocation data:', error);
-    return null;
+    return undefined;
   }
 };
 

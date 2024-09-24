@@ -14,7 +14,7 @@ import type { CountryStatistics, CountryWordMap } from '../services/infoService'
 
 export default defineComponent({
   setup() {
-    const country = ref<string | null>(null);
+    const country = ref<string | undefined>(undefined);
     const countryStatistics = ref<CountryStatistics | null>(null);
     const countryWordMap = ref<CountryWordMap | null>(null);
     const loading = ref<boolean>(true);

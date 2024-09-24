@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Visitor's country {{ country }}</h1>
-    <Map />
+    <Map :highlighted-country="country"/>
   </div>
 </template>
 
@@ -16,7 +16,7 @@ export default defineComponent({
     Map
   },
   setup() {
-    const country = ref<string | null>(null);
+    const country = ref<string | undefined>(undefined);
     const fetchCountryAndInfo = async () => {
       country.value = await getCountry();
     };

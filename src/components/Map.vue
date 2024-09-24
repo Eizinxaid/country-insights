@@ -1,13 +1,19 @@
 <template>
-  <div v-html="svgContent" @click="handleClick"></div>
+  <div v-html="processedSvgContent" @click="handleClick"></div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, watch, computed } from 'vue';
 
 export default defineComponent({
   name: 'Map',
-  setup() {
+  props: {
+    highlightedCountry: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const svgContent = ref('');
 
     onMounted(async () => {
@@ -17,6 +23,26 @@ export default defineComponent({
       } catch (error) {
         console.error('Error loading SVG:', error);
       }
+    });
+
+    const processedSvgContent = computed(() => {
+      if (!svgContent.value || !props.highlightedCountry) return svgContent.value;
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgContent.value, 'image/svg+xml');
+      
+      // Reset all countries
+      doc.querySelectorAll('path').forEach(path => {
+        path.removeAttribute('style');
+      });
+
+      // Highlight the selected country
+      const countryPath = doc.querySelector(`path[id="${props.highlightedCountry}"], path[name="${props.highlightedCountry}"], path.${props.highlightedCountry}`);
+      if (countryPath) {
+        countryPath.setAttribute('style', 'fill: gold; stroke: #000; stroke-width: 1;');
+      }
+
+      return new XMLSerializer().serializeToString(doc);
     });
 
     const handleClick = (event: MouseEvent) => {
@@ -33,12 +59,21 @@ export default defineComponent({
       }
     };
 
+    watch(() => props.highlightedCountry, () => {
+      // Force recomputation of processedSvgContent when highlightedCountry changes
+      processedSvgContent.value;
+    });
+
     return {
-      svgContent,
+      processedSvgContent,
       handleClick
     };
   }
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(path) {
+  transition: fill 0.3s ease, stroke 0.3s ease;
+}
+</style>
