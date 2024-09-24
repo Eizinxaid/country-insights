@@ -88,6 +88,30 @@ export interface Value {
   metricValue: number
 }
 
+//region general stat
+// Country value interface
+interface CountryValue {
+  key: string;
+  count: number;
+}
+
+// Countries aggregation interface
+interface CountriesAggregation {
+  values: CountryValue[];
+}
+
+// Aggregations interface
+interface CountryAggregations {
+  countries: CountriesAggregation;
+}
+
+// Main DTO interface
+export interface GeneralStatistics {
+  totalCount: number;
+  aggregations: CountryAggregations;
+}
+//end general stat
+
 export const getCountry = async (): Promise<string | undefined> => {
   try {
     const response = await axios.get<GeoLocationData>('https://ipinfo.io?token=bd3bc3bc9ce7eb'); // Replace with your API endpoint and token
@@ -114,6 +138,17 @@ export const getCountryWordCloud = async(countryCode: string): Promise<CountryWo
     return response.data;
   } catch (error) {
     console.error('Error fetching country wordcloud info:', error);
+    return null;
+  }
+}
+
+export const getGeneralStatistics = async(): Promise<GeneralStatistics | null> => {
+  try{
+    const response = await axios.get<GeneralStatistics>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?method=globalstatistics`);
+    return response.data;
+  }
+  catch (error) {
+    console.error('Error fetching general statistics info:', error);
     return null;
   }
 }
