@@ -152,3 +152,14 @@ export const getGeneralStatistics = async(): Promise<GeneralStatistics | undefin
     return undefined;
   }
 }
+
+export const getNewsStatistics = async(): Promise<GeneralStatistics | undefined> => {
+  try{
+    const response = await axios.get<GeneralStatistics>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?method=globalstatisticnews`);
+    return response.data;
+  }
+  catch (error) {
+    console.error('Error fetching general statistics info:', error);
+    return undefined;
+  }
+}

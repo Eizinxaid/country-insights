@@ -4,9 +4,9 @@
     </div>
     <div v-else>Loading map...</div>
     <div v-if="showPopup" class="country-popup" :style="popupStyle">
-      <div class="country-flag">{{ countryFlag }}</div>
-      <div class="country-name">{{ popupData.name }}</div>
+      <div class="country-flag">{{ popupData.name + countryFlag }}</div>
       <div class="country-count">{{ (popupData.count * 100).toLocaleString('en-US') }} mentions this week</div>
+      <div class="articles-count"> {{  (popupData.newsCount * 100).toLocaleString('en-US') }} articles</div>
     </div>
   </div>
 </template>
@@ -26,6 +26,10 @@ export default defineComponent({
     countryData: {
       type: Object,
       required: true
+    },
+    newsData: {
+      type: Object,
+      required: true
     }
   },
   setup(props) {
@@ -38,6 +42,7 @@ export default defineComponent({
     const popupData = ref({
       name: '',
       count: 0,
+      newsCount: 0
     });
     const countryFlag = ref('');
     const mapContainer = ref<HTMLElement | null>(null);
@@ -52,22 +57,26 @@ export default defineComponent({
     });
 
     const processedSvgContent = computed(() => {
-      if (!svgContent.value || !props.countryData || !props.countryData.aggregations) return '';
+      if (!svgContent.value || !props.countryData || !props.countryData.aggregations || !props.newsData || !props.newsData.aggregations) return '';
 
       const parser = new DOMParser();
       const doc = parser.parseFromString(svgContent.value, 'image/svg+xml');
 
       const countryValues = props.countryData.aggregations.countries.values;
+      const newsValues = props.newsData.aggregations.countries.values;
 
-      if (!countryValues || countryValues.length === 0) return svgContent.value;
+      if (!countryValues || countryValues.length === 0 || !newsValues || newsValues.length === 0) return svgContent.value;
 
       // Create a map of country codes to counts
       const countryCountMap: Map<string, number> = new Map(
         countryValues.map((country: { key: string; count: number }) => [country.key.toUpperCase(), country.count])
       );
 
+      const countryNewsMap: Map<string, number> = new Map(
+        newsValues.map((country: { key: string; count: number }) => [country.key.toUpperCase(), country.count])
+      );
+
       // Create a color scale
-      const counts = Array.from(countryCountMap.values());
       const colorScale = d3.scaleSequential(d3.interpolateGreens)
         .domain([0, 500000]);
 
@@ -77,6 +86,7 @@ export default defineComponent({
           countryKey = getCountryKeyByName(countryPath.getAttribute('class') || '');
         }
         const count = countryCountMap.get(countryKey.toUpperCase()) || 0;
+        const newsCount = countryNewsMap.get(countryKey.toUpperCase()) || 0;
 
         const color = colorScale(count);
         const isCurrentCountry = props.currentCountry.toUpperCase() === countryKey.toUpperCase();
@@ -88,6 +98,7 @@ export default defineComponent({
         // Add data attributes for click handling
         countryPath.setAttribute('data-country-key', countryKey);
         countryPath.setAttribute('data-country-count', count.toString());
+        countryPath.setAttribute('data-articles-count', newsCount.toString());
       });
 
       return new XMLSerializer().serializeToString(doc);
@@ -101,14 +112,16 @@ export default defineComponent({
           countryKey = getCountryKeyByName(target.getAttribute('class') || '');
         }
         const countryCount = target.getAttribute('data-country-count');
+        const newsCount = target.getAttribute('data-articles-count');
         const countryName = target.getAttribute('name') || target.getAttribute('id') || target.getAttribute('class');
 
-        if (countryKey && countryCount) {
+        if (countryKey && countryCount && newsCount) {
           showPopup.value = true;
           updatePopupPosition(event);
           popupData.value = {
             name: countryName || '',
             count: parseInt(countryCount, 10),
+            newsCount: parseInt(newsCount, 10)
           };
           countryFlag.value = getFlagEmoji(countryKey);
         }

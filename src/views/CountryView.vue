@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Visitor's Country: {{ country }}</h1>
-    <p v-if="countryStatistics">Total mentions per week: ~{{ countryStatistics.totalCount * 100 }}</p>
+    <p v-if="countryStatistics">Total mentions per week: ~{{ (countryStatistics.totalCount * 100).toLocaleString('en-US') }}</p>
     <p v-else-if="loading">Loading country information...</p>
     <p v-else>Error fetching country information.</p>
   </div>
