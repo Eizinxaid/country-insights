@@ -17,7 +17,7 @@ const router = createRouter({
       component: AboutView
     },
     {
-      path:'/detailed',
+      path:'/detailed/:countryCode',
       name:'detailed',
       component:CountryView
     }

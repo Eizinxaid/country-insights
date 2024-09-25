@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Visitor's Country: {{ country }}</h1>
+    <h1>Country: {{ countryCode }}</h1>
     <p v-if="countryStatistics">Total mentions per week: ~{{ (countryStatistics.totalCount * 100).toLocaleString('en-US') }}</p>
     <p v-else-if="loading">Loading country information...</p>
     <p v-else>Error fetching country information.</p>
@@ -8,34 +8,47 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-import { getCountry, getCountryStatistics } from '../services/infoService';
+import { defineComponent, ref, onMounted, watch } from 'vue';
+import countries from '../../public/countries.json'
+import { useRoute } from 'vue-router';
+import { getCountryStatistics } from '../services/infoService';
 import type { CountryStatistics, CountryWordMap } from '../services/infoService';
 
 export default defineComponent({
   setup() {
-    const country = ref<string | undefined>(undefined);
+    const route = useRoute();
+    const countryCode = ref(route.params.countryCode as string);
     const countryStatistics = ref<CountryStatistics | null>(null);
-    const countryWordMap = ref<CountryWordMap | null>(null);
+    const wordCloud = ref<CountryWordMap | null>(null);
     const loading = ref<boolean>(true);
 
-    const fetchCountryAndInfo = async () => {
+    const fetchCountryInfo = async () => {
       loading.value = true;
-      country.value = await getCountry();
-      
-      if (country.value) {
-        // Fetch additional information based on the country
-        countryStatistics.value = await getCountryStatistics(country.value);
+      if (countryCode.value) {
+        countryStatistics.value = await getCountryStatistics(countryCode.value);
       }
-      
       loading.value = false;
     };
 
     onMounted(() => {
-      fetchCountryAndInfo();
+      fetchCountryInfo();
     });
 
-    return { country, countryStatistics, loading };
+    watch(() => route.params.countryCode, (newCountryCode) => {
+      countryCode.value = newCountryCode as string;
+      fetchCountryInfo();
+    });
+
+    const getCountryNameByCode = (countryCode: string): string => {
+      const country = (countries as { Name: string; Code: string }[]).find(
+        (country) => country.Code === countryCode
+      );
+      return country ? country.Code : '';
+    };
+
+    const countryName = getCountryNameByCode(countryCode.value);
+
+    return { countryName, countryCode, countryStatistics, loading };
   },
 });
 </script>

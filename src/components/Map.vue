@@ -1,6 +1,6 @@
 <template>
   <div class="map-container" ref="mapContainer">
-    <div v-if="processedSvgContent" v-html="processedSvgContent" @mousemove="handleMouseMove" @mouseleave="hidePopup">
+    <div v-if="processedSvgContent" v-html="processedSvgContent" @mousemove="handleMouseMove" @mouseleave="hidePopup" @click="handleCountryClick">
     </div>
     <div v-else>Loading map...</div>
     <div v-if="showPopup" class="country-popup" :style="popupStyle">
@@ -15,6 +15,7 @@
 import { defineComponent, ref, onMounted, watch, computed } from 'vue';
 import countries from '../../public/countries.json'
 import * as d3 from 'd3';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'Map',
@@ -33,6 +34,7 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const router = useRouter();
     const svgContent = ref('');
     const showPopup = ref(false);
     const popupStyle = ref({
@@ -143,6 +145,19 @@ export default defineComponent({
       }
     };
 
+    const handleCountryClick = (event: MouseEvent) => {
+      const target = event.target as SVGElement;
+      if (target.tagName.toLowerCase() === 'path') {
+        let countryKey = target.getAttribute('id') || '';
+        if (countryKey == '') {
+          countryKey = getCountryKeyByName(target.getAttribute('class') || '');
+        }
+        if (countryKey) {
+          router.push({name: 'detailed', params: {countryCode: countryKey}});
+        }
+      }
+    };
+
     const getCountryKeyByName = (countryName: string): string => {
       const country = (countries as { Name: string; Code: string }[]).find(
         (country) => country.Name.toLowerCase() === countryName.toLowerCase()
@@ -175,6 +190,7 @@ export default defineComponent({
       popupData,
       countryFlag,
       mapContainer,
+      handleCountryClick
     };
   }
 });
