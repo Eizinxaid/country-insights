@@ -1,3 +1,4 @@
+import type { Word } from '@/components/WordCloud.vue';
 import axios from 'axios';
 
 export interface GeoLocationData {
@@ -124,10 +125,10 @@ export const getCountryStatistics = async (countryCode: string): Promise<Country
   }
 };
 
-export const getCountryWordCloud = async(countryCode: string): Promise<CountryWordMap | null> => {
+export const getCountryWordCloud = async(countryCode: string): Promise<Word[] | null> => {
   try {
     const response = await axios.get<CountryWordMap>(`https://icy-moon-bd8e.valentyn-ivankov-37d.workers.dev/?country=${countryCode}&method=wordcloud`); // Replace with your actual API endpoint
-    return response.data;
+    return convertRootToWordList(response.data.data);
   } catch (error) {
     console.error('Error fetching country wordcloud info:', error);
     return null;
@@ -154,4 +155,39 @@ export const getNewsStatistics = async(): Promise<GeneralStatistics | undefined>
     console.error('Error fetching general statistics info:', error);
     return undefined;
   }
+}
+
+function convertRootToWordList(root: Root): Word[] {
+  let allWords: Word[] = [];
+  root.actions.forEach(word => {
+    allWords.push({text: word.key, weight: word.metricValue});
+  });
+  root.characteristics.forEach(word => {
+    allWords.push({text: word.key, weight: word.metricValue});
+  });
+  root.locations.forEach(word => {
+    allWords.push({text: word.key, weight: word.metricValue});
+  });
+  root.objects.forEach(word => {
+    allWords.push({text: word.key, weight: word.metricValue});
+  });
+  root.organizations.forEach(word => {
+    allWords.push({text: word.key, weight: word.metricValue});
+  });
+  root.persons.forEach(word => {
+    allWords.push({text: word.key, weight: word.metricValue});
+  });
+  root.phrases.forEach(word => {
+    allWords.push({text: word.key, weight: word.metricValue});
+  });
+
+  // Sort by weight in descending order
+  allWords.sort((a, b) => b.weight - a.weight);
+
+  // Remove duplicates (keeping the first occurrence, which will be the one with the highest weight)
+  const uniqueWords = allWords.filter((word, index, self) =>
+    index === self.findIndex((t) => t.text === word.text)
+  );
+
+  return uniqueWords;
 }

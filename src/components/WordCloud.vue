@@ -71,7 +71,7 @@ export default defineComponent({
 
 <style scoped>
 .word-cloud {
-  width: 100%;
+  width: 50%;
   height: 400px;
   display: flex;
   flex-wrap: wrap;

@@ -26,7 +26,7 @@ export default defineComponent({
     const route = useRoute();
     const countryCode = ref(route.params.countryCode as string);
     const countryStatistics = ref<CountryStatistics | null>(null);
-    const wordCloud = ref<CountryWordMap | null>(null);
+    const wordCloud = ref<Word[] | null>(null);
     const loading = ref<boolean>(true);
     let wordList: Word[] = [
       { text: "вересень", weight: 141 },
@@ -68,27 +68,6 @@ export default defineComponent({
         wordCloud.value = await getCountryWordCloud(countryCode.value);
       }
       loading.value = false;
-    };
-
-    function convertRootToWordList(root: Root): Word[] {
-      const sections: (keyof Root)[] = ['actions', 'characteristics', 'objects', 'phrases', 'persons', 'organizations', 'locations'];
-
-      const allWords: Word[] = sections.flatMap(section =>
-        root[section].map(item => ({
-          text: item.key,
-          weight: item.metricValue
-        }))
-      );
-
-      // Sort by weight in descending order
-      allWords.sort((a, b) => b.weight - a.weight);
-
-      // Remove duplicates (keeping the first occurrence, which will be the one with the highest weight)
-      const uniqueWords = allWords.filter((word, index, self) =>
-        index === self.findIndex((t) => t.text === word.text)
-      );
-
-      return uniqueWords;
     }
 
     onMounted(() => {
@@ -108,16 +87,11 @@ export default defineComponent({
     };
 
     const countryName = getCountryNameByCode(countryCode.value);
-    if(wordCloud.value)
-    {
-      wordList = convertRootToWordList(wordCloud.value.data);
-    }
 
-    return { countryName, countryCode, countryStatistics, loading, wordList };
+    return { countryName, countryCode, countryStatistics, loading, wordCloud, wordList };
   },
 });
 </script>
 
 <style scoped>
-/* Add your styles here */
 </style>
