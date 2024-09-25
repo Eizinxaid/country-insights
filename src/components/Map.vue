@@ -68,8 +68,8 @@ export default defineComponent({
 
       // Create a color scale
       const counts = Array.from(countryCountMap.values());
-      const colorScale = d3.scaleSequential(d3.interpolateBlues)
-        .domain([0, Math.max(...counts)]);
+      const colorScale = d3.scaleSequential(d3.interpolateGreens)
+        .domain([0, 500000]);
 
       doc.querySelectorAll('path').forEach((countryPath) => {
         let countryKey = countryPath.getAttribute('id') || '';
@@ -188,7 +188,6 @@ export default defineComponent({
   padding: 5px;
   border-radius: 4px;
   pointer-events: none;
-  /* Prevents the popup from interfering with mouse events */
   z-index: 1000;
 }
 </style>
