@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h1>Visitor's country {{ country }}</h1>
     <Map v-if="generalStat && newsStat" :currentCountry="country || ''" :countryData="generalStat" :newsData="newsStat" />
   </div>
 </template>

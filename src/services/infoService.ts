@@ -12,11 +12,6 @@ export interface CountryStatistics {
   [key: string]: any;
 }
 
-export interface CountryWordMap {
-  data: Root;
-  [key: string]: any;
-}
-
 export interface Sentiment {
   nsr: number;
   values: Value[];
@@ -48,26 +43,23 @@ export interface Data {
   entities: Record<string, unknown>;
 }
 
-export interface Root {
-  actions: Word[]
-  characteristics: Word[]
-  objects: Word[]
-  phrases: Word[]
-  persons: Word[]
-  organizations: Word[]
-  locations: Word[]
+export interface CountryWordMap {
+  data: Root;
+  [key: string]: any;
 }
 
-export interface Word {
-  totalCount: number
-  totalUniqueTextsCount: number
-  similar_keywords: string[]
-  normalized_key: string
-  sentiment: Sentiment
-  languages: Language
-  uniqueTextsCount: number
+export interface Root {
+  actions: MetricWord[]
+  characteristics: MetricWord[]
+  objects: MetricWord[]
+  phrases: MetricWord[]
+  persons: MetricWord[]
+  organizations: MetricWord[]
+  locations: MetricWord[]
+}
+
+export interface MetricWord {
   key: string
-  count: number
   metricValue: number
 }
 

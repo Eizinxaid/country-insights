@@ -16,7 +16,7 @@ export interface Word {
   weight: number;
 }
 
-interface ProcessedWord extends Word {
+export interface ProcessedWord extends Word {
   fontSize: number;
 }
 
